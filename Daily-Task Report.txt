@@ -1,0 +1,7 @@
+1st june 2026
+Dev Arora
+Initialised project requirements 
+created repository
+searched for invoice datasets
+and went through the process
+visiting pandas to work in the project
