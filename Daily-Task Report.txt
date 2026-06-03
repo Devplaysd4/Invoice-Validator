@@ -1,11 +1,16 @@
+3rd june 2026
+- Implemented CSV parsing using pandas and analyzed dataset structure.
+- Built and tested validation functions for invoice date and amount verification, along with basic error logging.
+
 2nd june 2026
-Analyzed the invoice validation problem statement and identified key validation requirements.
-Researched CSV processing and data validation techniques to prepare for implementation.
+- Analyzed the invoice validation problem statement and identified key validation requirements.
+- Researched CSV processing and data validation techniques to prepare for implementation.
 (travelling)
+
 1st june 2026
 Dev Arora
-Initialised project requirements 
-created repository
-searched for invoice datasets
-and went through the process
-visiting pandas to work in the project
+- Initialised project requirements 
+- created repository
+- searched for invoice datasets
+- and went through the process
+- visiting pandas to work in the project
