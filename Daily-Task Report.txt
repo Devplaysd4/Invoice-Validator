@@ -1,3 +1,7 @@
+4th june 2026
+- Completed invoice validation utility using Python and pandas, including date and amount validation with error reporting.
+- Reviewed Git workflow and began exploring React fundamentals for upcoming frontend development tasks.
+
 3rd june 2026
 - Implemented CSV parsing using pandas and analyzed dataset structure.
 - Built and tested validation functions for invoice date and amount verification, along with basic error logging.
