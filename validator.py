@@ -1,16 +1,17 @@
 import pandas as pd
 from datetime import datetime 
-# loads csv to see first few rows
+# loads csv to see first few rows 
+# invoices.csv is error free
 invoice_data = pd.read_csv("sample_invoice.csv")
-print(invoice_data.head())
+print(invoice_data)
 # column names
 print(invoice_data.columns.tolist())
 #iterates for row number and row data
-for index,row in invoice_data.iterrows():
-    print(row["amount"])
+# for index,row in invoice_data.iterrows():
+#     print(row["amount"])
 def validate_date(date):
     try:
-        datetime.strptime(date,"%d/%m/%Y")
+        datetime.strptime(date,"%Y-%m-%d")
         return True
     except ValueError:
         return False    
@@ -23,7 +24,7 @@ def validate_amount(amount):
         return True
     except ValueError:
         return False
-# def validate_qty(qty):
+def validate_qty(qty):
     try:
         qty = int(qty)
         if qty <=0:
@@ -32,7 +33,7 @@ def validate_amount(amount):
     except ValueError:
         return False
 
-# def validate_email(email):
+def validate_email(email):
     if"@"in email and"." in email:
         return True
     return False
@@ -41,7 +42,7 @@ def validate_amount(amount):
 errors = []
 for index, row in invoice_data.iterrows():
 
-    if not validate_date(row["date"]):
+    if not validate_date(row["date"]):#invoice_date for bigger data
         errors.append(f"Row {index}: Invalid Date")
 
     if not validate_amount(row["amount"]):
@@ -53,7 +54,14 @@ for index, row in invoice_data.iterrows():
     # if not validate_email(row["email"]):
         # errors.append(f"Row {index}: Invalid Email")
 
+
 print("\nValidation Report")
 
-for error in errors:
-    print(error)
+if len(errors) == 0:
+    print("No errors found.")
+else:
+    for error in errors:
+        print(error)
+
+print(f"\nTotal Errors: {len(errors)}")
+print(f"total data rows: {len(invoice_data)}")
