@@ -1,3 +1,6 @@
+5th june 2026
+react course,docs
+
 4th june 2026
 - Completed invoice validation utility using Python and pandas, including date and amount validation with error reporting.
 - Reviewed Git workflow and began exploring React fundamentals for upcoming frontend development tasks.
