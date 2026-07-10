@@ -42,3 +42,4 @@ def create_invoice(invoice_number: str,
     db.commit()
     db.refresh(new_invoice)
     return new_invoice
+    
