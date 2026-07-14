@@ -1,6 +1,11 @@
 import pdfplumber
 import re
-
+from app.utils.field_extractor import (
+    find_invoice_number,
+    find_invoice_date,
+    find_amount,
+    find_vendor,
+)
 
 def extract_pdf_text(file_path: str):
 

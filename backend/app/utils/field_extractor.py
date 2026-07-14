@@ -1,0 +1,63 @@
+import re
+
+
+def find_invoice_number(text: str):
+    patterns = [
+        r"Invoice Number[:\s]+([A-Za-z0-9\-\/]+)",
+        r"Invoice No[:\s]+([A-Za-z0-9\-\/]+)",
+        r"Invoice #[:\s]+([A-Za-z0-9\-\/]+)",
+        r"Inv Number[:\s]+([A-Za-z0-9\-\/]+)",
+        r"Bill Number[:\s]+([A-Za-z0-9\-\/]+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1)
+
+    return None
+
+
+def find_invoice_date(text: str):
+    patterns = [
+        r"Invoice Date[:\s]+(\d{4}-\d{2}-\d{2})",
+        r"Invoice Date[:\s]+(\d{2}/\d{2}/\d{4})",
+        r"Date[:\s]+(\d{4}-\d{2}-\d{2})",
+        r"Date[:\s]+(\d{2}/\d{2}/\d{4})",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1)
+
+    return None
+
+
+def find_amount(text: str):
+    patterns = [
+        r"Grand Total[:\s₹]*([0-9,.]+)",
+        r"Invoice Amount[:\s₹]*([0-9,.]+)",
+        r"Amount[:\s₹]*([0-9,.]+)",
+        r"Total[:\s₹]*([0-9,.]+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+
+        if match:
+            try:
+                return float(match.group(1).replace(",", ""))
+            except ValueError:
+                pass
+
+    return None
+
+
+def find_vendor(text: str):
+    for line in text.splitlines():
+        line = line.strip()
+        if line:
+            return line
+
+    return None
