@@ -2,6 +2,7 @@ import os
 
 from app.parsers.csv_parser import parse_csv_file
 from app.parsers.excel_parser import parse_excel_file
+from app.parsers.pdf_parser import parse_pdf_file
 from app.utils.file_handler import save_uploaded_file
 
 
@@ -59,11 +60,6 @@ def normalize_invoice_rows(rows: list[dict]):
     return normalized_rows
 
 
-
-
-
-
-
 def process_upload(file):
     saved_file_info = save_uploaded_file(file)
 
@@ -77,6 +73,14 @@ def process_upload(file):
 
     elif file_type == "excel":
         raw_rows = parse_excel_file(saved_file_info["file_path"])
+        parsed_rows = normalize_invoice_rows(raw_rows)
+
+    elif file_type == "pdf":
+
+        raw_rows = parse_pdf_file(
+            saved_file_info["file_path"]
+    )
+
         parsed_rows = normalize_invoice_rows(raw_rows)
 
     return {
