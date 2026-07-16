@@ -2,7 +2,13 @@ import os
 
 from app.parsers.csv_parser import parse_csv_file
 from app.parsers.excel_parser import parse_excel_file
-from app.parsers.pdf_parser import parse_pdf_file
+from app.services.document_reader import (
+    read_pdf_text,
+    read_image_text,
+    read_scanned_pdf,
+)
+
+from app.services.field_extractor import extract_invoice
 from app.utils.file_handler import save_uploaded_file
 
 
@@ -28,7 +34,8 @@ def normalize_invoice_row(row: dict):
         or row.get("Invoice No")
         or row.get("Inv Number")
         or row.get("invoice_no")
-        or row.get("INVOICE_NUMBER"),
+        or row.get("INVOICE_NUMBER")
+        or row.get("Bill number"),
 
         "vendor": row.get("vendor")
         or row.get("Vendor")
@@ -37,6 +44,7 @@ def normalize_invoice_row(row: dict):
 
         "invoice_date": row.get("invoice_date")
         or row.get("Invoice Date")
+        or row.get("Bill date")
         or row.get("Date"),
 
         "amount": row.get("amount")
@@ -77,11 +85,22 @@ def process_upload(file):
 
     elif file_type == "pdf":
 
-        raw_rows = parse_pdf_file(
-            saved_file_info["file_path"]
-    )
+        text = read_pdf_text(saved_file_info["file_path"])
 
-        parsed_rows = normalize_invoice_rows(raw_rows)
+        if len(text.strip()) < 50:
+            text = read_scanned_pdf(saved_file_info["file_path"])
+
+        invoice = extract_invoice(text)
+
+        parsed_rows = normalize_invoice_rows([invoice])
+        
+    elif file_type == "image":
+
+        text = read_image_text(saved_file_info["file_path"])
+
+        invoice = extract_invoice(text)
+
+        parsed_rows = normalize_invoice_rows([invoice])
 
     return {
         "original_filename": saved_file_info["original_filename"],

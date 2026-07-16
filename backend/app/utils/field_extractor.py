@@ -61,3 +61,26 @@ def find_vendor(text: str):
             return line
 
     return None
+
+def extract_invoice(text):
+
+    invoice = {
+
+        "invoice_number":
+        find_invoice_number(text),
+
+        "vendor":
+        find_vendor(text),
+
+        "invoice_date":
+        find_invoice_date(text),
+
+        "amount":
+        find_amount(text),
+
+        "status":"PENDING",
+
+        "validation_errors":None
+    }
+
+    return invoice
