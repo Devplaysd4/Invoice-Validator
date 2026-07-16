@@ -12,6 +12,8 @@ from app.services.field_extractor import extract_invoice
 from app.utils.file_handler import save_uploaded_file
 
 
+from app.validators.invoice_validator import validate_invoice
+
 def detect_file_type(filename: str):
     extension = os.path.splitext(filename)[1].lower()
 
@@ -67,6 +69,17 @@ def normalize_invoice_rows(rows: list[dict]):
 
     return normalized_rows
 
+def validate_invoice_rows(rows: list[dict]):
+
+    validated_rows = []
+
+    for row in rows:
+
+        validated_rows.append(
+            validate_invoice(row)
+        )
+
+    return validated_rows
 
 def process_upload(file):
     saved_file_info = save_uploaded_file(file)
@@ -76,12 +89,28 @@ def process_upload(file):
     parsed_rows=[]
 
     if file_type == "csv":
-        raw_rows = parse_csv_file(saved_file_info["file_path"])
-        parsed_rows = normalize_invoice_rows(raw_rows)
+        raw_rows = parse_csv_file(
+        saved_file_info["file_path"]
+            )
+
+        normalized_rows = normalize_invoice_rows(raw_rows)
+
+        parsed_rows = validate_invoice_rows(
+            normalized_rows
+                            )
+
 
     elif file_type == "excel":
-        raw_rows = parse_excel_file(saved_file_info["file_path"])
-        parsed_rows = normalize_invoice_rows(raw_rows)
+
+        raw_rows = parse_excel_file(
+        saved_file_info["file_path"]
+    )
+
+        normalized_rows = normalize_invoice_rows(raw_rows)
+
+        parsed_rows = validate_invoice_rows(
+            normalized_rows
+    )
 
     elif file_type == "pdf":
 
@@ -92,15 +121,29 @@ def process_upload(file):
 
         invoice = extract_invoice(text)
 
-        parsed_rows = normalize_invoice_rows([invoice])
+        normalized_rows = normalize_invoice_rows(
+        [invoice]
+                        )
+
+        parsed_rows = validate_invoice_rows(
+        normalized_rows
+                        )
         
+
+
     elif file_type == "image":
 
         text = read_image_text(saved_file_info["file_path"])
 
         invoice = extract_invoice(text)
 
-        parsed_rows = normalize_invoice_rows([invoice])
+        normalized_rows = normalize_invoice_rows(
+            [invoice]
+                    )
+
+        parsed_rows = validate_invoice_rows(
+            normalized_rows
+                        )
 
     return {
         "original_filename": saved_file_info["original_filename"],

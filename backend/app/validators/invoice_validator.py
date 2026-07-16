@@ -142,7 +142,7 @@ def validate_invoice(invoice):
 
             errors.append(error)
 
-    invoice["validation_errors"] = errors
+    invoice["validation_errors"] = errors if errors else []
 
     if errors:
 
