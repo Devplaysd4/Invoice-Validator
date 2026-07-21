@@ -13,6 +13,9 @@ from app.utils.file_handler import save_uploaded_file
 
 
 from app.validators.invoice_validator import validate_invoice
+from app.validators.report_generator import generate_validation_report
+
+from app.services.database_service import save_invoices
 
 def detect_file_type(filename: str):
     extension = os.path.splitext(filename)[1].lower()
@@ -81,7 +84,7 @@ def validate_invoice_rows(rows: list[dict]):
 
     return validated_rows
 
-def process_upload(file):
+def process_upload(file,db):
     saved_file_info = save_uploaded_file(file)
 
     file_type = detect_file_type(saved_file_info["original_filename"])
@@ -145,11 +148,46 @@ def process_upload(file):
             normalized_rows
                         )
 
+    ...
+   
+
+    report = generate_validation_report(parsed_rows)
+
+    saved_invoices = save_invoices(
+        db,
+        parsed_rows
+    )
+
     return {
-        "original_filename": saved_file_info["original_filename"],
-        "saved_filename": saved_file_info["saved_filename"],
-        "file_path": saved_file_info["file_path"],
-        "file_size": saved_file_info["file_size"],
-        "file_type": file_type,
-        "parsed_rows":parsed_rows
+
+    "original_filename": saved_file_info["original_filename"],
+
+    "saved_filename": saved_file_info["saved_filename"],
+
+    "file_path": saved_file_info["file_path"],
+
+    "file_size": saved_file_info["file_size"],
+
+    "file_type": file_type,
+
+    "parsed_rows": parsed_rows,
+
+    "validation_report": report,
+
+    "database": {
+
+        "saved_records": len(saved_invoices["saved"]),
+
+        "saved_invoice_ids": [
+
+            invoice.id
+
+            for invoice in saved_invoices["saved"]
+
+        ],
+
+        "duplicates": saved_invoices["duplicates"]
+
     }
+
+}

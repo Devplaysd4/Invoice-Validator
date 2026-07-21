@@ -1,3 +1,4 @@
+
 import cv2
 import easyocr
 import pdfplumber
@@ -16,7 +17,7 @@ def preprocess_image(image):
         cv2.COLOR_BGR2GRAY
     )
 
-    blur = cv2.GaussianBlur(
+    blur = cv2.GaussianBlur(\
         gray,
         (3,3),
         0

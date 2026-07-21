@@ -6,7 +6,12 @@ def validate_invoice_number(invoice):
     invoice_number = invoice.get("invoice_number")
 
     if not invoice_number:
-        return "Invoice Number is missing"
+        return {
+    "field": "invoice_number",
+    "problem": "Missing invoice number",
+    "value_found": invoice_number,
+    "expected": "Non-empty invoice number"
+}
 
     return None
 
@@ -74,7 +79,12 @@ def validate_amount(invoice):
         return "Amount is invalid"
 
     if amount <= 0:
-        return "Amount must be greater than zero"
+        return {
+    "field": "amount",
+    "problem": "Amount must be greater than zero",
+    "value_found": amount,
+    "expected": "A positive number"
+}
 
     return None
 
@@ -153,3 +163,4 @@ def validate_invoice(invoice):
         invoice["status"] = "VALID"
 
     return invoice
+# return improve of others done for amound and inv number
