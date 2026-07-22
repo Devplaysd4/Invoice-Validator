@@ -10,8 +10,7 @@ router = APIRouter()
 @router.post("/upload-invoice")
 def upload_invoice(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
+    db: Session = Depends(get_db)):
     upload_result = process_upload(file, db)
 
     return {
