@@ -17,6 +17,10 @@ from app.validators.report_generator import generate_validation_report
 
 from app.services.database_service import save_invoices
 
+def process_rows(raw_rows):
+    normalized = normalize_invoice_rows(raw_rows)
+    return validate_invoice_rows(normalized)
+
 def detect_file_type(filename: str):
     extension = os.path.splitext(filename)[1].lower()
 
@@ -84,110 +88,99 @@ def validate_invoice_rows(rows: list[dict]):
 
     return validated_rows
 
-def process_upload(file,db):
+def process_upload(file, db):
+
     saved_file_info = save_uploaded_file(file)
 
     file_type = detect_file_type(saved_file_info["original_filename"])
 
-    parsed_rows=[]
+    parsed_rows = []
 
-    if file_type == "csv":
-        raw_rows = parse_csv_file(
-        saved_file_info["file_path"]
+    try:
+
+        if file_type == "csv":
+
+            raw_rows = parse_csv_file(
+                saved_file_info["file_path"]
             )
 
-        normalized_rows = normalize_invoice_rows(raw_rows)
+            parsed_rows = process_rows(raw_rows)
 
-        parsed_rows = validate_invoice_rows(
-            normalized_rows
-                            )
+        elif file_type == "excel":
 
+            raw_rows = parse_excel_file(
+                saved_file_info["file_path"]
+            )
 
-    elif file_type == "excel":
+            parsed_rows = process_rows(raw_rows)
 
-        raw_rows = parse_excel_file(
-        saved_file_info["file_path"]
-    )
+        elif file_type == "pdf":
 
-        normalized_rows = normalize_invoice_rows(raw_rows)
+            text = read_pdf_text(
+                saved_file_info["file_path"]
+            )
 
-        parsed_rows = validate_invoice_rows(
-            normalized_rows
-    )
+            if len(text.strip()) < 50:
+                text = read_scanned_pdf(
+                    saved_file_info["file_path"]
+                )
 
-    elif file_type == "pdf":
+            invoice = extract_invoice(text)
 
-        text = read_pdf_text(saved_file_info["file_path"])
+            parsed_rows = process_rows([invoice])
 
-        if len(text.strip()) < 50:
-            text = read_scanned_pdf(saved_file_info["file_path"])
+        elif file_type == "image":
 
-        invoice = extract_invoice(text)
+            text = read_image_text(
+                saved_file_info["file_path"]
+            )
 
-        normalized_rows = normalize_invoice_rows(
-        [invoice]
-                        )
+            invoice = extract_invoice(text)
 
-        parsed_rows = validate_invoice_rows(
-        normalized_rows
-                        )
-        
+            parsed_rows = process_rows([invoice])
 
+        else:
 
-    elif file_type == "image":
+            raise ValueError("Unsupported file type.")
 
-        text = read_image_text(saved_file_info["file_path"])
+        report = generate_validation_report(parsed_rows)
 
-        invoice = extract_invoice(text)
+        saved_invoices = save_invoices(
+            db,
+            parsed_rows
+        )
 
-        normalized_rows = normalize_invoice_rows(
-            [invoice]
-                    )
+        return {
 
-        parsed_rows = validate_invoice_rows(
-            normalized_rows
-                        )
+            "original_filename": saved_file_info["original_filename"],
 
-    ...
-   
+            "saved_filename": saved_file_info["saved_filename"],
 
-    report = generate_validation_report(parsed_rows)
+            "file_path": saved_file_info["file_path"],
 
-    saved_invoices = save_invoices(
-        db,
-        parsed_rows
-    )
+            "file_size": saved_file_info["file_size"],
 
-    return {
+            "file_type": file_type,
 
-    "original_filename": saved_file_info["original_filename"],
+            "parsed_rows": parsed_rows,
 
-    "saved_filename": saved_file_info["saved_filename"],
+            "validation_report": report,
 
-    "file_path": saved_file_info["file_path"],
+            "database": {
 
-    "file_size": saved_file_info["file_size"],
+                "saved_records": len(saved_invoices["saved"]),
 
-    "file_type": file_type,
+                "saved_invoice_ids": [
+                    invoice.id
+                    for invoice in saved_invoices["saved"]
+                ],
 
-    "parsed_rows": parsed_rows,
+                "duplicates": saved_invoices["duplicates"]
 
-    "validation_report": report,
+            }
 
-    "database": {
+        }
 
-        "saved_records": len(saved_invoices["saved"]),
+    except Exception as e:
 
-        "saved_invoice_ids": [
-
-            invoice.id
-
-            for invoice in saved_invoices["saved"]
-
-        ],
-
-        "duplicates": saved_invoices["duplicates"]
-
-    }
-
-}
+        raise Exception(f"Upload processing failed: {str(e)}")

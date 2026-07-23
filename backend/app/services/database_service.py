@@ -59,6 +59,8 @@ def save_invoices(db: Session, invoices):
         db.rollback()
 
         raise
+    
+    
     return {
 
         "saved": saved,
