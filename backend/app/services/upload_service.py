@@ -241,9 +241,19 @@ def process_upload(file, db):
 
             from app.services.document_reader import read_document
 
-            text = read_document(
-                saved_file_info["file_path"]
-)
+            text = read_pdf_text(saved_file_info["file_path"])
+
+            print("Embedded PDF text length:", len(text))
+
+            if len(text.strip()) < 100:
+
+                print("Using OCR...")
+
+                text = read_scanned_pdf(
+                    saved_file_info["file_path"]
+    )
+
+            print(text[:1000])
 
             invoice = extract_invoice(text)
 

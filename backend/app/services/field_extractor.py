@@ -25,11 +25,15 @@ def find_invoice_number(text: str):
 
     patterns = [
 
-        r"(?:Invoice\s*Number|Invoice\s*No\.?|Invoice\s*#|Inv\s*No\.?|Bill\s*Number|Bill\s*No\.?|Document\s*Number|Reference\s*Number)\s*[:\-]?\s*([A-Za-z0-9\-\/]+)",
+        r"(?:Invoice\s*Number|Invoice\s*No|Bill\s*Number)\s*[:#-]?\s*([A-Za-z0-9/-]+)",
 
-        r"\bINV[- ]?[A-Za-z0-9]+\b",
+        r"Bill\s*number\s+([A-Za-z0-9]+)",
 
-        r"\bINVOICE[- ]?[A-Za-z0-9]+\b"
+        r"\b[A-Z0-9]{10,}\b",
+
+        r"Bill\s*number\s*([A-Z0-9]{8,})",
+
+        r"Invoice\s*Number\s*[:#-]?\s*([A-Z0-9/-]{6,})",
 
     ]
 
@@ -37,13 +41,21 @@ def find_invoice_number(text: str):
 
         match = re.search(pattern, text, re.IGNORECASE)
 
-        if match:
+        if not match:
+            continue
 
-            return match.group(1).strip()
+        candidate = (
+            match.group(match.lastindex)
+            if match.lastindex
+            else match.group(0)
+        )
+
+        if len(candidate) < 8:
+            continue
+
+        return candidate
 
     return None
-
-
 # -----------------------------
 # Date
 # -----------------------------
@@ -80,11 +92,15 @@ def normalize_date(date_string):
     return date_string
 
 
-def find_invoice_date(text: str):
+def find_invoice_date(text):
 
     patterns = [
 
-        r"(?:Invoice\s*Date|Bill\s*Date|Date)\s*[:\-]?\s*([A-Za-z0-9\-\/ ]+)",
+        r"Bill\s*date\s*([0-9]{2}-[A-Za-z]{3}-[0-9]{4})",
+
+        r"Invoice\s*Date\s*([0-9]{2}-[A-Za-z]{3}-[0-9]{4})",
+
+        r"([0-9]{2}-[A-Za-z]{3}-[0-9]{4})"
 
     ]
 
@@ -94,9 +110,7 @@ def find_invoice_date(text: str):
 
         if match:
 
-            return normalize_date(
-                match.group(1)
-            )
+            return normalize_date(match.group(1))
 
     return None
 
@@ -105,37 +119,37 @@ def find_invoice_date(text: str):
 # Amount
 # -----------------------------
 
-def find_amount(text: str):
+def find_amount(text):
 
     patterns = [
 
-        r"(?:Grand\s*Total|Net\s*Amount|Invoice\s*Amount|Total\s*Payable|Amount\s*Due|Total)\s*[:₹ ]*\s*([0-9,]+\.\d+)",
+        r"Total\s*([0-9]+\.[0-9]{2})",
+
+        r"Grand\s*Total\s*([0-9]+\.[0-9]{2})",
+
+        r"Amount\s*Due\s*([0-9]+\.[0-9]{2})"
 
     ]
 
     for pattern in patterns:
 
         matches = re.findall(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
+            r"Total\s*\n*\s*([0-9]+\.[0-9]{2})",
+                text,
+                re.IGNORECASE
+)
 
         if matches:
 
             try:
-
-                value = matches[-1]
-
-                return float(
-                    value.replace(",", "")
-                )
-
+                return float(matches[-1])
             except:
-
                 pass
 
-    return None
+    numbers = [float(x) for x in matches]
+
+    if numbers:
+        return max(numbers)
 
 
 # -----------------------------

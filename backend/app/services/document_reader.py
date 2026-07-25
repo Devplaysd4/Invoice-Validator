@@ -18,45 +18,38 @@ reader = easyocr.Reader(
 
 def preprocess_image(image):
 
-    # Upscale
     image = cv2.resize(
         image,
         None,
-        fx=2,
-        fy=2,
+        fx=3,
+        fy=3,
         interpolation=cv2.INTER_CUBIC
     )
 
-    gray = cv2.cvtColor(
-        image,
-        cv2.COLOR_BGR2GRAY
-    )
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Remove noise
     gray = cv2.fastNlMeansDenoising(gray)
 
-    # Sharpen
-    kernel = np.array([
-        [0, -1, 0],
-        [-1, 5, -1],
-        [0, -1, 0]
-    ])
+    gray = cv2.GaussianBlur(gray, (3,3), 0)
 
-    gray = cv2.filter2D(
+    gray = cv2.adaptiveThreshold(
         gray,
-        -1,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY,
+        31,
+        11
+    )
+
+    kernel = np.ones((2,2), np.uint8)
+
+    gray = cv2.morphologyEx(
+        gray,
+        cv2.MORPH_CLOSE,
         kernel
     )
 
-    # Binary threshold
-    image = cv2.threshold(
-        gray,
-        0,
-        255,
-        cv2.THRESH_BINARY + cv2.THRESH_OTSU
-    )[1]
-
-    return image
+    return gray
 
 
 # ----------------------------------
@@ -67,11 +60,19 @@ def ocr_image(image):
 
     results = reader.readtext(
         image,
+        paragraph=True,
         detail=0,
-        paragraph=True
+        width_ths=0.8,
+        height_ths=0.8
     )
 
-    return "\n".join(results)
+    text = "\n".join(results)
+
+    print("\n========== OCR OUTPUT ==========\n")
+    print(text)
+    print("\n===============================\n")
+
+    return text
 
 
 # ----------------------------------
@@ -83,13 +84,17 @@ def read_image_text(image_path):
     image = cv2.imread(image_path)
 
     if image is None:
-        raise Exception(
-            f"Unable to read image: {image_path}"
-        )
+        raise Exception(f"Unable to read image: {image_path}")
 
     image = preprocess_image(image)
 
-    return ocr_image(image)
+    text = ocr_image(image)
+
+    print("\n========== OCR OUTPUT ==========\n")
+    print(text)
+    print("\n================================\n")
+
+    return text
 
 
 # ----------------------------------
@@ -104,8 +109,10 @@ def read_pdf_text(pdf_path):
 
         for page in pdf.pages:
 
-            page_text = page.extract_text()
-
+            page_text = page.extract_text(
+    x_tolerance=2,
+    y_tolerance=2
+)
             if page_text:
 
                 text += page_text
