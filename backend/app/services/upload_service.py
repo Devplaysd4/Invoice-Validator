@@ -35,38 +35,93 @@ def detect_file_type(filename: str):
     else:
         return "unsupported"
 
+COLUMN_ALIASES = {
+
+    "invoice_number": [
+
+        "invoice_number",
+        "invoice_no",
+        "invoice",
+        "bill_number",
+        "document_number"
+
+    ],
+
+    "vendor": [
+
+        "vendor",
+        "supplier",
+        "seller",
+        "company"
+
+    ],
+
+    "invoice_date": [
+
+        "invoice_date",
+        "date",
+        "bill_date",
+        "from_date"
+
+    ],
+
+    "amount": [
+
+        "amount",
+        "invoice_amount",
+        "total",
+        "total_payable",
+        "grand_total",
+        "net_amount"
+
+    ]
+
+}
+
+
+def get_value(row, aliases):
+
+    for alias in aliases:
+
+        value = row.get(alias)
+
+        if value not in [None, "", "None"]:
+
+            return value
+
+    return None
 
 def normalize_invoice_row(row: dict):
+
     normalized_row = {
-        "invoice_number": row.get("invoice_number")
-        or row.get("Invoice Number")
-        or row.get("Invoice No")
-        or row.get("Inv Number")
-        or row.get("invoice_no")
-        or row.get("INVOICE_NUMBER")
-        or row.get("Bill number"),
 
-        "vendor": row.get("vendor")
-        or row.get("Vendor")
-        or row.get("Vendor Name")
-        or row.get("Supplier"),
+        "invoice_number": get_value(
+            row,
+            COLUMN_ALIASES["invoice_number"]
+        ),
 
-        "invoice_date": row.get("invoice_date")
-        or row.get("Invoice Date")
-        or row.get("Bill date")
-        or row.get("Date"),
+        "vendor": get_value(
+            row,
+            COLUMN_ALIASES["vendor"]
+        ),
 
-        "amount": row.get("amount")
-        or row.get("Amount")
-        or row.get("Total")
-        or row.get("Invoice Amount"),
+        "invoice_date": get_value(
+            row,
+            COLUMN_ALIASES["invoice_date"]
+        ),
+
+        "amount": get_value(
+            row,
+            COLUMN_ALIASES["amount"]
+        ),
 
         "status": "PENDING",
+
         "validation_errors": None
+
     }
 
     return normalized_row
-
 
 def normalize_invoice_rows(rows: list[dict]):
     normalized_rows = []
@@ -94,6 +149,9 @@ def process_upload(file, db):
 
     file_type = detect_file_type(saved_file_info["original_filename"])
 
+    print("Detected file type:", file_type)
+    print("Saved path:", saved_file_info["file_path"])
+
     parsed_rows = []
 
     try:
@@ -110,9 +168,27 @@ def process_upload(file, db):
 
             raw_rows = parse_excel_file(
                 saved_file_info["file_path"]
-            )
+    )
 
-            parsed_rows = process_rows(raw_rows)
+            from pprint import pprint
+
+            print("\n========== RAW ROWS ==========")
+            pprint(raw_rows[:3])
+            print("==============================")
+
+            normalized_rows = normalize_invoice_rows(raw_rows)
+
+            print("\n========== NORMALIZED ROWS ==========")
+            pprint(normalized_rows[:3])
+            print("=====================================")
+
+            parsed_rows = validate_invoice_rows(
+                normalized_rows
+    )
+
+            print("\n========== VALIDATED ROWS ==========")
+            pprint(parsed_rows[:3])
+            print("====================================")
 
         elif file_type == "pdf":
 
@@ -144,6 +220,13 @@ def process_upload(file, db):
             raise ValueError("Unsupported file type.")
 
         report = generate_validation_report(parsed_rows)
+
+        print("\n========== PARSED ROWS ==========")
+
+        for row in parsed_rows:
+            print(row)
+
+        print("=================================\n")
 
         saved_invoices = save_invoices(
             db,
@@ -183,4 +266,8 @@ def process_upload(file, db):
 
     except Exception as e:
 
-        raise Exception(f"Upload processing failed: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
+
+        raise

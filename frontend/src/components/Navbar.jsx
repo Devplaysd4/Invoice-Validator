@@ -6,15 +6,11 @@ function Navbar() {
 
         <nav>
 
-            <Link to="/">
-                Dashboard
-            </Link>
+            <Link to="/">Dashboard</Link>
 
             {" | "}
 
-            <Link to="/upload">
-                Upload
-            </Link>
+            <Link to="/upload">Upload</Link>
 
         </nav>
 

@@ -1,9 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "./pages/Dashboard";
-import Upload from "./pages/Upload";
-
 import Navbar from "./components/Navbar";
+
+import Dashboard from "./pages/Dashboard";
+
+import Upload from "./pages/Upload";
 
 function App() {
 
@@ -16,13 +17,19 @@ function App() {
             <Routes>
 
                 <Route
+
                     path="/"
+
                     element={<Dashboard />}
+
                 />
 
                 <Route
+
                     path="/upload"
+
                     element={<Upload />}
+
                 />
 
             </Routes>

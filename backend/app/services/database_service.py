@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.invoice import Invoice
 
+import json
 
 def save_invoices(db: Session, invoices):
 
@@ -39,7 +40,7 @@ def save_invoices(db: Session, invoices):
 
             status=invoice_data["status"],
 
-            validation_errors=invoice_data["validation_errors"]
+            validation_errors=json.dumps(invoice_data["validation_errors"],indent=2)
 
         )
 
