@@ -44,7 +44,13 @@ COLUMN_ALIASES = {
         "invoice",
         "bill_number",
         "document_number"
-
+        "invoicenumber",
+        "INVOICE NO.",
+        "INVOICE NUMBER",
+        "INVOICE_NUMBER",
+        "INVOICE_NO.",
+        "INVOICE NO",
+        "INVOICENO."
     ],
 
     "vendor": [
@@ -61,7 +67,13 @@ COLUMN_ALIASES = {
         "invoice_date",
         "date",
         "bill_date",
-        "from_date"
+        "from_date",
+        "fromdate",
+        "INVOICE DATE",
+        "INVOICE_DATE",
+        "BILL_DATE",
+        "BILLDATE",
+        "DATE"
 
     ],
 
@@ -72,8 +84,9 @@ COLUMN_ALIASES = {
         "total",
         "total_payable",
         "grand_total",
-        "net_amount"
-
+        "net_amount",
+        "AMOUNT",
+        "TOTAL",
     ]
 
 }
@@ -93,17 +106,38 @@ def get_value(row, aliases):
 
 def normalize_invoice_row(row: dict):
 
-    normalized_row = {
+    # Airtel Excel
+    if "invoicenumber" in row:
+
+        return {
+
+            "invoice_number": row.get("invoicenumber"),
+
+            "vendor": "Bharti Airtel",
+
+            "invoice_date": row.get("fromdate"),
+
+            "amount": row.get("totalpayable"),
+
+            "status": "PENDING",
+
+            "validation_errors": None
+
+        }
+
+    # Generic invoices
+
+    return {
 
         "invoice_number": get_value(
             row,
             COLUMN_ALIASES["invoice_number"]
         ),
 
-        "vendor": get_value(
-            row,
-            COLUMN_ALIASES["vendor"]
-        ),
+        "vendor": (
+            get_value(row, COLUMN_ALIASES["vendor"])
+            or "Bharti Airtel"
+),
 
         "invoice_date": get_value(
             row,
@@ -161,14 +195,27 @@ def process_upload(file, db):
             raw_rows = parse_csv_file(
                 saved_file_info["file_path"]
             )
+            print("Total rows:", len(raw_rows))
 
+            for row in raw_rows:
+                print(
+                    row.get("invoice_number"),
+                    row.get("total_payable")
+    )
             parsed_rows = process_rows(raw_rows)
 
         elif file_type == "excel":
 
             raw_rows = parse_excel_file(
                 saved_file_info["file_path"]
-    )
+)
+
+# Airtel format detected
+            if (
+                len(raw_rows) > 0
+                and "telephone_number" in raw_rows[0]
+):
+                print("Airtel Excel detected.")
 
             from pprint import pprint
 
@@ -192,14 +239,11 @@ def process_upload(file, db):
 
         elif file_type == "pdf":
 
-            text = read_pdf_text(
-                saved_file_info["file_path"]
-            )
+            from app.services.document_reader import read_document
 
-            if len(text.strip()) < 50:
-                text = read_scanned_pdf(
-                    saved_file_info["file_path"]
-                )
+            text = read_document(
+                saved_file_info["file_path"]
+)
 
             invoice = extract_invoice(text)
 

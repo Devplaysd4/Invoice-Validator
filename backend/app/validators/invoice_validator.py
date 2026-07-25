@@ -37,7 +37,9 @@ def validate_invoice_date(invoice):
 
         "%d/%m/%Y",
 
-        "%d-%m-%Y"
+        "%d-%m-%Y",
+
+        "%d.%m.%Y", 
 
     ]
 

@@ -8,13 +8,30 @@ def save_invoices(db: Session, invoices):
 
     saved = []
     duplicates = []
+    seen = set()
+
 
     for invoice_data in invoices:
 
+        invoice_number = invoice_data.get("invoice_number")
+
+        if invoice_number in seen:
+
+            duplicates.append({
+                "invoice_number": invoice_number,
+                "reason": "Duplicate in uploaded file"
+        })
+
+            continue
+
+        seen.add(invoice_number)
+        # Skip invalid invoices while parsing is being fixed
+        if invoice_data["status"] == "INVALID":
+            continue        
         existing = (
             db.query(Invoice)
             .filter(
-                Invoice.invoice_number == invoice_data["invoice_number"]
+                Invoice.invoice_number == invoice_number
             )
             .first()
         )
@@ -22,11 +39,12 @@ def save_invoices(db: Session, invoices):
         if existing:
 
             duplicates.append({
-                "invoice_number": invoice_data["invoice_number"],
+                "invoice_number": invoice_number,
                 "reason": "Already exists"
             })
 
             continue
+
 
         invoice = Invoice(
 
