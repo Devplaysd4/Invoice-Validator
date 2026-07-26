@@ -1,5 +1,5 @@
 import os
-
+import math
 from app.parsers.csv_parser import parse_csv_file
 from app.parsers.excel_parser import parse_excel_file
 from app.services.document_reader import (
@@ -16,6 +16,29 @@ from app.validators.invoice_validator import validate_invoice
 from app.validators.report_generator import generate_validation_report
 
 from app.services.database_service import save_invoices
+
+def clean_nan(obj):
+
+    if isinstance(obj, dict):
+
+        return {
+            k: clean_nan(v)
+            for k, v in obj.items()
+        }
+
+    if isinstance(obj, list):
+
+        return [
+            clean_nan(v)
+            for v in obj
+        ]
+
+    if isinstance(obj, float):
+
+        if math.isnan(obj):
+            return None
+
+    return obj
 
 def process_rows(raw_rows):
     normalized = normalize_invoice_rows(raw_rows)
@@ -43,7 +66,7 @@ COLUMN_ALIASES = {
         "invoice_no",
         "invoice",
         "bill_number",
-        "document_number"
+        "document_number",
         "invoicenumber",
         "INVOICE NO.",
         "INVOICE NUMBER",
@@ -55,12 +78,19 @@ COLUMN_ALIASES = {
 
     "vendor": [
 
-        "vendor",
-        "supplier",
-        "seller",
-        "company"
+    "vendor",
+    "supplier",
+    "seller",
+    "company",
+    "company_name",
+    "customer",
+    "organization",
+    "organisation",
+    "vendor_name",
+    "provider",
+    "service_provider"
 
-    ],
+],
 
     "invoice_date": [
 
@@ -92,21 +122,33 @@ COLUMN_ALIASES = {
 }
 
 
+import math
+
+import pandas as pd
+
 def get_value(row, aliases):
 
     for alias in aliases:
 
         value = row.get(alias)
 
-        if value not in [None, "", "None"]:
+        if pd.isna(value):
+            continue
 
-            return value
+        if isinstance(value, str):
+
+            value = value.strip()
+
+            if value == "":
+                continue
+
+        return value
 
     return None
 
 def normalize_invoice_row(row: dict):
 
-    # Airtel Excel
+    # Airtel Excel format
     if "invoicenumber" in row:
 
         return {
@@ -125,7 +167,28 @@ def normalize_invoice_row(row: dict):
 
         }
 
-    # Generic invoices
+    # Generic vendor detection
+    vendor = get_value(row, COLUMN_ALIASES["vendor"])
+
+    if vendor is None:
+
+        for key, value in row.items():
+
+            key_lower = str(key).lower()
+
+            if any(keyword in key_lower for keyword in [
+                "vendor",
+                "company",
+                "supplier",
+                "organization",
+                "organisation",
+                "provider",
+                "seller"
+            ]):
+
+                if not pd.isna(value):
+                    vendor = value
+                    break
 
     return {
 
@@ -134,10 +197,7 @@ def normalize_invoice_row(row: dict):
             COLUMN_ALIASES["invoice_number"]
         ),
 
-        "vendor": (
-            get_value(row, COLUMN_ALIASES["vendor"])
-            or "Bharti Airtel"
-),
+        "vendor": vendor,
 
         "invoice_date": get_value(
             row,
@@ -154,8 +214,6 @@ def normalize_invoice_row(row: dict):
         "validation_errors": None
 
     }
-
-    return normalized_row
 
 def normalize_invoice_rows(rows: list[dict]):
     normalized_rows = []
@@ -224,6 +282,12 @@ def process_upload(file, db):
             print("==============================")
 
             normalized_rows = normalize_invoice_rows(raw_rows)
+            from pprint import pprint
+
+            print("\nNORMALIZED TYPES")
+            for row in normalized_rows:
+                pprint(row)
+                print(type(row["vendor"]))
 
             print("\n========== NORMALIZED ROWS ==========")
             pprint(normalized_rows[:3])
@@ -272,6 +336,8 @@ def process_upload(file, db):
         else:
 
             raise ValueError("Unsupported file type.")
+
+        parsed_rows = clean_nan(parsed_rows)
 
         report = generate_validation_report(parsed_rows)
 

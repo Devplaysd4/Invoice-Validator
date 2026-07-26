@@ -1,0 +1,13 @@
+invoice_number,vendor,invoice_date,amount,email,quantity
+INV-2026-0001,Bharti Airtel,2026-05-01,322.0,accounts@airtel.com,1
+INV-2026-0002,Reliance Jio,2026-05-03,1654.5,billing@jio.com,2
+INV-2026-0003,BSNL,2026-05-05,1420.0,finance@bsnl.co.in,3
+INV-2026-0004,Amazon India,2026-05-07,4816.75,ap@amazon.in,5
+INV-2026-0005,Microsoft India,2026-05-10,9999.99,accounts@microsoft.com,10
+,Google India,2026-05-12,1200.0,finance@google.com,2
+INV-2026-0007,,2026-05-15,750.0,vendor@test.com,1
+INV-2026-0008,Adobe,2035-01-01,4500.0,billing@adobe.com,4
+INV-2026-0009,Oracle,2026-05-20,-500.0,accounts@oracle.com,2
+INV-2026-0010,IBM,2026-05-22,1800.0,invalid-email,2
+INV-2026-0011,Infosys,2026-05-25,2500.0,finance@infosys.com,0
+INV-2026-0012,TCS,2026-05-28,3100.0,accounts@tcs.com,7

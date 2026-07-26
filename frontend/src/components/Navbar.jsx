@@ -4,13 +4,21 @@ function Navbar() {
 
     return (
 
-        <nav>
+        <nav className="navbar">
 
-            <Link to="/">Dashboard</Link>
+            <h2>Invoice Processor</h2>
 
-            {" | "}
+            <div className="nav-links">
 
-            <Link to="/upload">Upload</Link>
+                <Link to="/">
+                    Dashboard
+                </Link>
+
+                <Link to="/upload">
+                    Upload
+                </Link>
+
+            </div>
 
         </nav>
 

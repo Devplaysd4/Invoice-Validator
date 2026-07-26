@@ -14,6 +14,18 @@ def save_invoices(db: Session, invoices):
     for invoice_data in invoices:
 
         invoice_number = invoice_data.get("invoice_number")
+        import math
+
+        if invoice_number is None:
+            continue
+
+        if isinstance(invoice_number, float) and math.isnan(invoice_number):
+            continue
+
+        invoice_number = str(invoice_number).strip()
+
+        if invoice_number == "":
+            continue
 
         if invoice_number in seen:
 

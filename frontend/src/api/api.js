@@ -5,6 +5,7 @@ const api = axios.create({
 });
 
 export async function uploadInvoice(file) {
+
     const formData = new FormData();
 
     formData.append("file", file);
@@ -26,10 +27,18 @@ export async function getInvoices() {
     return response.data;
 }
 
+export async function getInvoice(id) {
+
+    const response = await api.get(
+        `/invoices/${id}`
+    );
+
+    return response.data;
+}
+
 export async function deleteInvoice(id) {
 
     await api.delete(
         `/invoices/${id}`
     );
-
 }

@@ -191,37 +191,54 @@ BAD_LINES = {
 }
 
 
+import re
+
 def find_vendor(text: str):
 
-    lines = clean_text(text).split("\n")
+    lines = [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip()
+    ]
 
-    for line in lines[:15]:
+    # Common company suffixes
+    company_keywords = [
+        "ltd",
+        "limited",
+        "private",
+        "pvt",
+        "corporation",
+        "corp",
+        "inc",
+        "llp",
+        "solutions",
+        "technologies",
+        "telecom",
+        "airtel",
+        "vodafone",
+        "jio",
+        "bsnl"
+    ]
 
-        candidate = line.strip()
+    # First pass: company name
+    for line in lines:
 
-        if len(candidate) < 3:
-            continue
+        lower = line.lower()
 
-        lower = candidate.lower()
+        if any(keyword in lower for keyword in company_keywords):
 
-        skip = False
+            return line
 
-        for bad in BAD_LINES:
+    # Second pass: all-uppercase line
+    for line in lines:
 
-            if bad in lower:
-                skip = True
-                break
+        cleaned = re.sub(r"[^A-Za-z ]", "", line)
 
-        if skip:
-            continue
+        if len(cleaned.split()) >= 2 and cleaned.isupper():
 
-        if re.search(r"\d{6,}", candidate):
-            continue
-
-        return candidate
+            return line
 
     return None
-
 
 # -----------------------------
 # Email
@@ -292,3 +309,17 @@ def extract_invoice(text):
         "validation_errors": None
 
     }
+
+import pandas as pd
+
+def clean_value(value):
+
+    if pd.isna(value):
+        return None
+
+    value = str(value).strip()
+
+    if value == "":
+        return None
+
+    return value

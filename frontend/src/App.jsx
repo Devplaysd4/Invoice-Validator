@@ -3,41 +3,49 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 import Dashboard from "./pages/Dashboard";
-
 import Upload from "./pages/Upload";
 
 function App() {
 
     return (
 
-        <>
+        <div className="app">
 
             <Navbar />
 
-            <Routes>
+            <main className="container">
 
-                <Route
+                <Routes>
 
-                    path="/"
+                    <Route
+                        path="/"
+                        element={<Dashboard />}
+                    />
 
-                    element={<Dashboard />}
+                    <Route
+                        path="/upload"
+                        element={<Upload />}
+                    />
 
-                />
+                </Routes>
 
-                <Route
+            </main>
 
-                    path="/upload"
-
-                    element={<Upload />}
-
-                />
-
-            </Routes>
-
-        </>
+        </div>
 
     );
 
 }
 
 export default App;
+
+// .app{
+//     min-height:100vh;
+//     background:#0f172a;
+// }
+
+// .container{
+//     max-width:1300px;
+//     margin:auto;
+//     padding:30px;
+// }

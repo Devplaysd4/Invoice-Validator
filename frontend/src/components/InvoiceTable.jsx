@@ -1,8 +1,14 @@
 function InvoiceTable({ invoices, onDelete }) {
 
+    if (invoices.length === 0) {
+
+        return <h3>No invoices found.</h3>;
+
+    }
+
     return (
 
-        <table border="1">
+        <table className="invoice-table">
 
             <thead>
 
@@ -10,13 +16,17 @@ function InvoiceTable({ invoices, onDelete }) {
 
                     <th>ID</th>
 
-                    <th>Invoice</th>
+                    <th>Invoice Number</th>
 
                     <th>Vendor</th>
+
+                    <th>Date</th>
 
                     <th>Amount</th>
 
                     <th>Status</th>
+
+                    <th>Validation Errors</th>
 
                     <th>Action</th>
 
@@ -38,16 +48,40 @@ function InvoiceTable({ invoices, onDelete }) {
 
                             <td>{invoice.vendor}</td>
 
-                            <td>{invoice.amount}</td>
+                            <td>{invoice.invoice_date}</td>
 
-                            <td>{invoice.status}</td>
+                            <td>₹ {invoice.amount}</td>
+
+                            <td>
+
+                                <span
+                                    style={{
+                                        color:
+                                            invoice.status === "VALID"
+                                                ? "limegreen"
+                                                : "red",
+                                        fontWeight: "bold"
+                                    }}
+                                >
+                                    {invoice.status}
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                {
+                                    invoice.validation_errors
+                                        ? invoice.validation_errors
+                                        : "-"
+                                }
+
+                            </td>
 
                             <td>
 
                                 <button
-                                    onClick={() =>
-                                        onDelete(invoice.id)
-                                    }
+                                    onClick={() => onDelete(invoice.id)}
                                 >
                                     Delete
                                 </button>

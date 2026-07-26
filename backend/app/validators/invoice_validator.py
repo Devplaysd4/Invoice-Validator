@@ -1,19 +1,33 @@
 import re
 from datetime import datetime
 
+import pandas as pd
+
 def validate_invoice_number(invoice):
 
     invoice_number = invoice.get("invoice_number")
 
-    if not invoice_number:
+    if pd.isna(invoice_number):
         return {
-    "field": "invoice_number",
-    "problem": "Missing invoice number",
-    "value_found": invoice_number,
-    "expected": "Non-empty invoice number"
-}
+            "field": "invoice_number",
+            "problem": "Missing invoice number",
+            "value_found": None,
+            "expected": "Non-empty invoice number"
+        }
+
+    invoice_number = str(invoice_number).strip()
+
+    if invoice_number == "":
+        return {
+            "field": "invoice_number",
+            "problem": "Missing invoice number",
+            "value_found": "",
+            "expected": "Non-empty invoice number"
+        }
 
     return None
+
+    
 
 def validate_vendor(invoice):
 
