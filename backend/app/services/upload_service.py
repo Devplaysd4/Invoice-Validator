@@ -148,18 +148,33 @@ def get_value(row, aliases):
 
 def normalize_invoice_row(row: dict):
 
-    # Airtel Excel format
-    if "invoicenumber" in row:
+    # -----------------------------------
+    # Airtel Excel Format
+    # -----------------------------------
+
+    if "telephone_number" in row:
 
         return {
 
-            "invoice_number": row.get("invoicenumber"),
+            "invoice_number": row.get("invoice_number"),
 
             "vendor": "Bharti Airtel",
 
-            "invoice_date": row.get("fromdate"),
+            "invoice_date": row.get("from_date"),
 
-            "amount": row.get("totalpayable"),
+            "amount": row.get("total_payable"),
+
+            "fixed_rent": row.get("fixed_rent_charges"),
+
+            "call_usage": row.get("call_usage_charges"),
+
+            "adjustments": row.get("adjustments"),
+
+            "cgst": row.get("cgst"),
+
+            "sgst": row.get("sgst"),
+
+            "discount": row.get("20_disc"),
 
             "status": "PENDING",
 
@@ -167,7 +182,10 @@ def normalize_invoice_row(row: dict):
 
         }
 
-    # Generic vendor detection
+    # -----------------------------------
+    # Generic Vendor Detection
+    # -----------------------------------
+
     vendor = get_value(row, COLUMN_ALIASES["vendor"])
 
     if vendor is None:
@@ -176,7 +194,8 @@ def normalize_invoice_row(row: dict):
 
             key_lower = str(key).lower()
 
-            if any(keyword in key_lower for keyword in [
+            if any(word in key_lower for word in [
+
                 "vendor",
                 "company",
                 "supplier",
@@ -184,11 +203,17 @@ def normalize_invoice_row(row: dict):
                 "organisation",
                 "provider",
                 "seller"
+
             ]):
 
-                if not pd.isna(value):
+                if value is not None and not pd.isna(value):
+
                     vendor = value
                     break
+
+    # -----------------------------------
+    # Generic Invoice
+    # -----------------------------------
 
     return {
 
@@ -207,6 +232,36 @@ def normalize_invoice_row(row: dict):
         "amount": get_value(
             row,
             COLUMN_ALIASES["amount"]
+        ),
+
+        "fixed_rent": get_value(
+            row,
+            ["fixed_rent_charges", "fixed_rent"]
+        ),
+
+        "call_usage": get_value(
+            row,
+            ["call_usage_charges", "call_usage"]
+        ),
+
+        "adjustments": get_value(
+            row,
+            ["adjustments"]
+        ),
+
+        "cgst": get_value(
+            row,
+            ["cgst"]
+        ),
+
+        "sgst": get_value(
+            row,
+            ["sgst"]
+        ),
+
+        "discount": get_value(
+            row,
+            ["20_disc", "discount"]
         ),
 
         "status": "PENDING",
@@ -234,6 +289,8 @@ def validate_invoice_rows(rows: list[dict]):
         )
 
     return validated_rows
+
+
 
 def process_upload(file, db):
 

@@ -99,3 +99,29 @@ def save_invoices(db: Session, invoices):
         "duplicates": duplicates
 
     }
+
+def update_invoice(db, invoice_id, updated_data):
+
+    invoice = (
+        db.query(Invoice)
+        .filter(Invoice.id == invoice_id)
+        .first()
+    )
+
+    if not invoice:
+        return None
+
+    invoice.invoice_number = updated_data["invoice_number"]
+    invoice.vendor = updated_data["vendor"]
+    invoice.invoice_date = updated_data["invoice_date"]
+    invoice.amount = updated_data["amount"]
+    invoice.status = updated_data["status"]
+
+    invoice.validation_errors = json.dumps(
+        updated_data.get("validation_errors", [])
+    )
+
+    db.commit()
+    db.refresh(invoice)
+
+    return invoice

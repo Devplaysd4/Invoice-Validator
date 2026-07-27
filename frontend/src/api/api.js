@@ -20,25 +20,31 @@ export async function uploadInvoice(file) {
 
 export async function getInvoices() {
 
-    const response = await api.get(
-        "/invoices"
-    );
-
-    return response.data;
-}
-
-export async function getInvoice(id) {
-
-    const response = await api.get(
-        `/invoices/${id}`
-    );
+    const response = await api.get("/invoices");
 
     return response.data;
 }
 
 export async function deleteInvoice(id) {
 
-    await api.delete(
-        `/invoices/${id}`
+    const response = await api.delete(`/invoices/${id}`);
+
+    return response.data;
+}
+
+export async function getInvoice(id){
+
+    const response = await api.get(`/invoices/${id}`);
+
+    return response.data;
+}
+
+export async function updateInvoice(id,data){
+
+    const response = await api.put(
+        `/invoices/${id}`,
+        data
     );
+
+    return response.data;
 }

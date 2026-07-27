@@ -146,19 +146,15 @@ def validate_invoice(invoice):
 
     validators = [
 
-        validate_invoice_number,
+    validate_invoice_number,
+    validate_vendor,
+    validate_invoice_date,
+    validate_amount,
+    validate_invoice_total,
+    validate_email,
+    validate_quantity
 
-        validate_vendor,
-
-        validate_invoice_date,
-
-        validate_amount,
-
-        validate_email,
-
-        validate_quantity
-
-    ]
+]
 
     for validator in validators:
 
@@ -180,3 +176,41 @@ def validate_invoice(invoice):
 
     return invoice
 # return improve of others done for amound and inv number
+
+def validate_invoice_total(invoice):
+
+    required = [
+        "fixed_rent",
+        "call_usage",
+        "adjustments",
+        "cgst",
+        "sgst",
+        "discount",
+        "amount"
+    ]
+
+    if any(invoice.get(x) is None for x in required):
+        return None
+
+    expected = (
+        float(invoice["fixed_rent"])
+        + float(invoice["call_usage"])
+        + float(invoice["adjustments"])
+        + float(invoice["cgst"])
+        + float(invoice["sgst"])
+        + float(invoice["discount"])
+    )
+
+    actual = float(invoice["amount"])
+
+    if abs(expected - actual) > 1:
+
+        return {
+            "field": "amount",
+            "problem": "Invoice total mismatch",
+            "expected_total": round(expected,2),
+            "actual_total": actual,
+            "difference": round(actual-expected,2)
+        }
+
+    return None

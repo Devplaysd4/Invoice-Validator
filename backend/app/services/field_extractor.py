@@ -193,48 +193,99 @@ BAD_LINES = {
 
 import re
 
+import re
+
 def find_vendor(text: str):
 
-    lines = [
-        line.strip()
-        for line in text.splitlines()
-        if line.strip()
-    ]
+    # -------------------------------
+    # Known Vendors
+    # -------------------------------
 
-    # Common company suffixes
-    company_keywords = [
-        "ltd",
-        "limited",
-        "private",
-        "pvt",
-        "corporation",
-        "corp",
-        "inc",
-        "llp",
-        "solutions",
-        "technologies",
-        "telecom",
-        "airtel",
-        "vodafone",
-        "jio",
-        "bsnl"
-    ]
+    KNOWN_VENDORS = {
 
-    # First pass: company name
-    for line in lines:
+        "airtel": "Bharti Airtel",
+
+        "reliance jio": "Reliance Jio",
+
+        "jio": "Reliance Jio",
+
+        "bsnl": "BSNL",
+
+        "vodafone": "Vodafone",
+
+        "vi": "Vodafone Idea",
+
+        "idea": "Vodafone Idea",
+
+        "amazon": "Amazon India",
+
+        "microsoft": "Microsoft India",
+
+        "google": "Google India",
+
+        "oracle": "Oracle",
+
+        "adobe": "Adobe",
+
+        "infosys": "Infosys",
+
+        "tcs": "TCS",
+
+        "ibm": "IBM",
+
+        "ongc": "Oil and Natural Gas Corporation Ltd",
+
+        "oil and natural gas": "Oil and Natural Gas Corporation Ltd"
+
+    }
+
+    lower_text = text.lower()
+
+    # ---------------------------------
+    # Match known vendors first
+    # ---------------------------------
+
+    for key, value in KNOWN_VENDORS.items():
+
+        if key in lower_text:
+
+            return value
+
+    # ---------------------------------
+    # Otherwise search first 20 lines
+    # ---------------------------------
+
+    lines = text.splitlines()
+
+    for line in lines[:20]:
+
+        line = line.strip()
+
+        if len(line) < 5:
+            continue
 
         lower = line.lower()
 
-        if any(keyword in lower for keyword in company_keywords):
+        if any(skip in lower for skip in [
 
-            return line
+            "invoice",
+            "bill",
+            "gst",
+            "relationship",
+            "telephone",
+            "mobile",
+            "amount",
+            "date",
+            "period",
+            "total",
+            "cgst",
+            "sgst"
 
-    # Second pass: all-uppercase line
-    for line in lines:
+        ]):
 
-        cleaned = re.sub(r"[^A-Za-z ]", "", line)
+            continue
 
-        if len(cleaned.split()) >= 2 and cleaned.isupper():
+        if re.search(r"[A-Za-z]{4,}", line):
 
             return line
 
