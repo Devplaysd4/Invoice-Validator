@@ -1,6 +1,7 @@
+![Invoice Validator Banner](Assets/banner.png)
 <div align="center">
 
-# 📄 Intelligent Invoice Processing System
+# 📄  Invoice Processing System
 
 ### Extract • Validate • Store • Manage
 
