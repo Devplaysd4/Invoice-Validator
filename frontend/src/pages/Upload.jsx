@@ -8,21 +8,15 @@ import {
 function Upload() {
 
     const [file, setFile] = useState(null);
-
     const [loading, setLoading] = useState(false);
-
     const [result, setResult] = useState(null);
-
     const [showReport, setShowReport] = useState(false);
 
     async function handleUpload() {
 
         if (!file) {
-
             alert("Choose file");
-
             return;
-
         }
 
         setLoading(true);
@@ -77,27 +71,30 @@ function Upload() {
 
         <div className="upload-page">
 
-            <h1>
-
-                Upload Invoice
-
-            </h1>
+            <h1>Upload Invoice</h1>
 
             <div className="upload-box">
 
                 <input
+
                     type="file"
+
                     onChange={(e) =>
-                        setFile(
-                            e.target.files[0]
-                        )
+
+                        setFile(e.target.files[0])
+
                     }
+
                 />
 
                 <button
+
                     onClick={handleUpload}
+
                 >
+
                     Upload
+
                 </button>
 
             </div>
@@ -106,11 +103,7 @@ function Upload() {
 
                 loading &&
 
-                <h3>
-
-                    Uploading...
-
-                </h3>
+                <h3>Uploading...</h3>
 
             }
 
@@ -120,41 +113,41 @@ function Upload() {
 
                 <div className="upload-result">
 
-                    <h2>
-
-                        Upload Successful
-
-                    </h2>
+                    <h2>Upload Successful</h2>
 
                     <p>
 
-                        <b>File:</b>{" "}
-
-                        {result.data.original_filename}
+                        <b>File:</b> {result.data.original_filename}
 
                     </p>
 
                     <p>
 
-                        <b>Type:</b>{" "}
-
-                        {result.data.file_type}
+                        <b>Type:</b> {result.data.file_type}
 
                     </p>
 
                     <p>
 
-                        <b>Saved:</b>{" "}
-
-                        {result.data.database.saved_records}
+                        <b>Saved Records:</b> {result.data.database.saved_records}
 
                     </p>
 
                     <p>
 
-                        <b>Duplicates:</b>{" "}
+                        <b>Duplicates:</b> {result.data.database.duplicates.length}
 
-                        {result.data.database.duplicates.length}
+                    </p>
+
+                    <hr />
+
+                    <h2>Validation Summary</h2>
+
+                    <p>
+
+                        <b>Total Invoices:</b>{" "}
+
+                        {result.data.validation_report.summary.total_invoices}
 
                     </p>
 
@@ -174,10 +167,22 @@ function Upload() {
 
                     </p>
 
+                    <p>
+
+                        <b>Success Rate:</b>{" "}
+
+                        {result.data.validation_report.summary.success_rate}
+
+                    </p>
+
                     <button
+
                         onClick={() =>
+
                             setShowReport(!showReport)
+
                         }
+
                     >
 
                         {
@@ -186,11 +191,11 @@ function Upload() {
 
                                 ?
 
-                                "Hide Validation Report"
+                                "Hide Full Validation Report"
 
                                 :
 
-                                "View Validation Report"
+                                "View Full Validation Report"
 
                         }
 
@@ -200,139 +205,215 @@ function Upload() {
 
                         showReport &&
 
-                        <pre>
+                        <div
 
-                            {
+                            style={{
 
-                                JSON.stringify(
+                                marginTop: "20px",
 
-                                    result.data.validation_report,
+                                maxHeight: "400px",
 
-                                    null,
+                                overflowY: "auto",
 
-                                    2
+                                overflowX: "auto",
 
-                                )
+                                border: "1px solid #444",
 
-                            }
+                                borderRadius: "8px"
 
-                        </pre>
+                            }}
+
+                        >
+
+                            <pre
+
+                                style={{
+
+                                    margin: 0,
+
+                                    padding: "15px",
+
+                                    background: "#111827",
+
+                                    color: "#ffffff",
+
+                                    whiteSpace: "pre-wrap"
+
+                                }}
+
+                            >
+
+                                {
+
+                                    JSON.stringify(
+
+                                        result.data.validation_report,
+
+                                        null,
+
+                                        2
+
+                                    )
+
+                                }
+
+                            </pre>
+
+                        </div>
 
                     }
 
-                    <h3>
+                    <hr />
 
-                        Invalid Invoices
+                    <h2>Invalid Invoices</h2>
 
-                    </h3>
+                    <div
 
-                    {
+                        style={{
 
-                        result.data.parsed_rows
+                            maxHeight: "350px",
 
-                            .filter(
+                            overflowY: "auto",
 
-                                invoice =>
+                            border: "1px solid #ddd",
 
-                                    invoice.status === "INVALID"
+                            borderRadius: "8px",
 
-                            )
+                            padding: "10px"
 
-                            .map(
+                        }}
 
-                                (invoice, index) => (
+                    >
 
-                                    <div
+                        {
 
-                                        key={index}
+                            result.data.parsed_rows
 
-                                        style={{
+                                .filter(
 
-                                            border: "1px solid #ccc",
+                                    invoice =>
 
-                                            marginTop: "10px",
+                                        invoice.status === "INVALID"
 
-                                            padding: "10px"
+                                )
 
-                                        }}
+                                .length === 0
 
-                                    >
+                            ?
 
-                                        <p>
+                            <p>
 
-                                            <b>
+                                🎉 No invalid invoices found.
 
-                                                Invoice:
+                            </p>
 
-                                            </b>{" "}
+                            :
 
-                                            {
+                            result.data.parsed_rows
 
-                                                invoice.invoice_number ||
+                                .filter(
 
-                                                "Missing"
+                                    invoice =>
 
-                                            }
+                                        invoice.status === "INVALID"
 
-                                        </p>
+                                )
 
-                                        <p>
+                                .map(
 
-                                            <b>
+                                    (invoice, index) => (
 
-                                                Vendor:
+                                        <div
 
-                                            </b>{" "}
+                                            key={index}
 
-                                            {
+                                            style={{
 
-                                                invoice.vendor ||
+                                                border: "1px solid #ccc",
 
-                                                "Missing"
+                                                borderRadius: "8px",
 
-                                            }
+                                                padding: "15px",
 
-                                        </p>
+                                                marginBottom: "15px"
 
-                                        <pre>
-
-                                            {
-
-                                                JSON.stringify(
-
-                                                    invoice.validation_errors,
-
-                                                    null,
-
-                                                    2
-
-                                                )
-
-                                            }
-
-                                        </pre>
-
-                                        <button
-
-                                            onClick={() =>
-
-                                                handleSaveAnyway(invoice)
-
-                                            }
+                                            }}
 
                                         >
 
-                                            Save Anyway
+                                            <p>
 
-                                        </button>
+                                                <b>Invoice:</b>{" "}
 
-                                    </div>
+                                                {invoice.invoice_number || "Missing"}
+
+                                            </p>
+
+                                            <p>
+
+                                                <b>Vendor:</b>{" "}
+
+                                                {invoice.vendor || "Missing"}
+
+                                            </p>
+
+                                            <p>
+
+                                                <b>Status:</b>{" "}
+
+                                                {invoice.status}
+
+                                            </p>
+
+                                            <pre
+
+                                                style={{
+
+                                                    whiteSpace: "pre-wrap"
+
+                                                }}
+
+                                            >
+
+                                                {
+
+                                                    JSON.stringify(
+
+                                                        invoice.validation_errors,
+
+                                                        null,
+
+                                                        2
+
+                                                    )
+
+                                                }
+
+                                            </pre>
+
+                                            <button
+
+                                                onClick={() =>
+
+                                                    handleSaveAnyway(invoice)
+
+                                                }
+
+                                            >
+
+                                                Save Anyway
+
+                                            </button>
+
+                                        </div>
+
+                                    )
 
                                 )
 
-                            )
+                        }
 
-                    }
+                    </div>
 
                 </div>
 

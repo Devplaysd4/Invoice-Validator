@@ -33,7 +33,6 @@ function Dashboard(){
     const [editingInvoice,setEditingInvoice]=useState(null);
 
     
-
     async function loadInvoices(){
 
         const data=await getInvoices();
@@ -129,6 +128,8 @@ function Dashboard(){
                 onView={setSelectedInvoice}
 
                 onEdit={setEditingInvoice}
+
+                
 
             />
 

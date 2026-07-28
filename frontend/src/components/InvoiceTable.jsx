@@ -6,7 +6,8 @@ function InvoiceTable({
 
     onView,
 
-    onEdit
+    onEdit,
+
 
 }) {
 
@@ -84,55 +85,57 @@ function InvoiceTable({
 
                                 <td>
 
-                                    <button
+    <button
 
-                                        className="view-btn"
+        className="view-btn"
 
-                                        onClick={()=>
+        onClick={() =>
 
-                                            onView(invoice)
+            onView(invoice)
 
-                                        }
+        }
 
-                                    >
+    >
 
-                                        View
+        View
 
-                                    </button>
+    </button>
 
-                                    <button
+    
 
-                                        className="edit-btn"
+    <button
 
-                                        onClick={()=>
+        className="edit-btn"
 
-                                            onEdit(invoice)
+        onClick={() =>
 
-                                        }
+            onEdit(invoice)
 
-                                    >
+        }
 
-                                        Edit
+    >
 
-                                    </button>
+        Edit
 
-                                    <button
+    </button>
 
-                                        className="delete-btn"
+    <button
 
-                                        onClick={()=>
+        className="delete-btn"
 
-                                            onDelete(invoice.id)
+        onClick={() =>
 
-                                        }
+            onDelete(invoice.id)
 
-                                    >
+        }
 
-                                        Delete
+    >
 
-                                    </button>
+        Delete
 
-                                </td>
+    </button>
+
+</td>
 
                             </tr>
 
