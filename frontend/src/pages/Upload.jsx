@@ -1,18 +1,28 @@
 import { useState } from "react";
 
-import { uploadInvoice } from "../api/api";
+import {
+    uploadInvoice,
+    saveAnyway
+} from "../api/api";
 
 function Upload() {
 
     const [file, setFile] = useState(null);
+
     const [loading, setLoading] = useState(false);
+
     const [result, setResult] = useState(null);
+
+    const [showReport, setShowReport] = useState(false);
 
     async function handleUpload() {
 
         if (!file) {
-            alert("Choose a file first.");
+
+            alert("Choose file");
+
             return;
+
         }
 
         setLoading(true);
@@ -21,159 +31,312 @@ function Upload() {
 
             const response = await uploadInvoice(file);
 
+            console.log(response);
+
             setResult(response);
 
-        } catch (err) {
+        }
 
-            console.error(err);
+        catch (err) {
+
+            console.log(err);
 
             alert("Upload Failed");
 
-        } finally {
+        }
+
+        finally {
 
             setLoading(false);
 
         }
+
+    }
+
+    async function handleSaveAnyway(invoice) {
+
+        try {
+
+            await saveAnyway(invoice);
+
+            alert("Invoice saved successfully.");
+
+        }
+
+        catch (err) {
+
+            console.log(err);
+
+            alert("Save failed.");
+
+        }
+
     }
 
     return (
 
-        <div>
+        <div className="upload-page">
 
-            <h1>Upload Invoice</h1>
+            <h1>
 
-            <input
-                type="file"
-                onChange={(e) => setFile(e.target.files[0])}
-            />
+                Upload Invoice
 
-            <button onClick={handleUpload}>
-                Upload
-            </button>
+            </h1>
 
-            {loading && <p>Uploading...</p>}
+            <div className="upload-box">
 
-            {result && (
+                <input
+                    type="file"
+                    onChange={(e) =>
+                        setFile(
+                            e.target.files[0]
+                        )
+                    }
+                />
 
-                <>
+                <button
+                    onClick={handleUpload}
+                >
+                    Upload
+                </button>
 
-                    <hr />
+            </div>
 
-                    <h2>Upload Summary</h2>
+            {
 
-                    <p><b>File:</b> {result.data.original_filename}</p>
+                loading &&
 
-                    <p><b>Type:</b> {result.data.file_type}</p>
+                <h3>
 
-                    <p><b>Invoices Parsed:</b> {result.data.parsed_rows.length}</p>
+                    Uploading...
 
-                    <p><b>Saved:</b> {result.data.database.saved_records}</p>
+                </h3>
 
-                    <p><b>Duplicates:</b> {result.data.database.duplicates.length}</p>
+            }
 
-                    <hr />
+            {
 
-                    <h2>Validation Report</h2>
+                result &&
 
-                    <table border="1" cellPadding="8">
+                <div className="upload-result">
 
-                        <tbody>
+                    <h2>
 
-                            <tr>
-                                <td>Total</td>
-                                <td>{result.data.validation_report.summary.total_invoices}</td>
-                            </tr>
+                        Upload Successful
 
-                            <tr>
-                                <td>Valid</td>
-                                <td>{result.data.validation_report.summary.valid_invoices}</td>
-                            </tr>
+                    </h2>
 
-                            <tr>
-                                <td>Invalid</td>
-                                <td>{result.data.validation_report.summary.invalid_invoices}</td>
-                            </tr>
+                    <p>
 
-                            <tr>
-                                <td>Success Rate</td>
-                                <td>{result.data.validation_report.summary.success_rate}%</td>
-                            </tr>
+                        <b>File:</b>{" "}
 
-                            <tr>
-                                <td>Total Amount</td>
-                                <td>₹ {result.data.validation_report.statistics.total_amount}</td>
-                            </tr>
+                        {result.data.original_filename}
 
-                            <tr>
-                                <td>Average Amount</td>
-                                <td>₹ {result.data.validation_report.statistics.average_amount}</td>
-                            </tr>
+                    </p>
 
-                            <tr>
-                                <td>Highest Amount</td>
-                                <td>₹ {result.data.validation_report.statistics.highest_amount}</td>
-                            </tr>
+                    <p>
 
-                            <tr>
-                                <td>Lowest Amount</td>
-                                <td>₹ {result.data.validation_report.statistics.lowest_amount}</td>
-                            </tr>
+                        <b>Type:</b>{" "}
 
-                        </tbody>
+                        {result.data.file_type}
 
-                    </table>
+                    </p>
 
-                    <hr />
+                    <p>
 
-                    <h2>Parsed Invoices</h2>
+                        <b>Saved:</b>{" "}
 
-                    <table border="1" cellPadding="8">
+                        {result.data.database.saved_records}
 
-                        <thead>
+                    </p>
 
-                            <tr>
+                    <p>
 
-                                <th>Invoice No</th>
+                        <b>Duplicates:</b>{" "}
 
-                                <th>Vendor</th>
+                        {result.data.database.duplicates.length}
 
-                                <th>Date</th>
+                    </p>
 
-                                <th>Amount</th>
+                    <p>
 
-                                <th>Status</th>
+                        <b>Valid:</b>{" "}
 
-                            </tr>
+                        {result.data.validation_report.summary.valid_invoices}
 
-                        </thead>
+                    </p>
 
-                        <tbody>
+                    <p>
 
-                            {result.data.parsed_rows.map((invoice, index) => (
+                        <b>Invalid:</b>{" "}
 
-                                <tr key={index}>
+                        {result.data.validation_report.summary.invalid_invoices}
 
-                                    <td>{invoice.invoice_number}</td>
+                    </p>
 
-                                    <td>{invoice.vendor}</td>
+                    <button
+                        onClick={() =>
+                            setShowReport(!showReport)
+                        }
+                    >
 
-                                    <td>{invoice.invoice_date}</td>
+                        {
 
-                                    <td>{invoice.amount}</td>
+                            showReport
 
-                                    <td>{invoice.status}</td>
+                                ?
 
-                                </tr>
+                                "Hide Validation Report"
 
-                            ))}
+                                :
 
-                        </tbody>
+                                "View Validation Report"
 
-                    </table>
+                        }
 
-                </>
+                    </button>
 
-            )}
+                    {
+
+                        showReport &&
+
+                        <pre>
+
+                            {
+
+                                JSON.stringify(
+
+                                    result.data.validation_report,
+
+                                    null,
+
+                                    2
+
+                                )
+
+                            }
+
+                        </pre>
+
+                    }
+
+                    <h3>
+
+                        Invalid Invoices
+
+                    </h3>
+
+                    {
+
+                        result.data.parsed_rows
+
+                            .filter(
+
+                                invoice =>
+
+                                    invoice.status === "INVALID"
+
+                            )
+
+                            .map(
+
+                                (invoice, index) => (
+
+                                    <div
+
+                                        key={index}
+
+                                        style={{
+
+                                            border: "1px solid #ccc",
+
+                                            marginTop: "10px",
+
+                                            padding: "10px"
+
+                                        }}
+
+                                    >
+
+                                        <p>
+
+                                            <b>
+
+                                                Invoice:
+
+                                            </b>{" "}
+
+                                            {
+
+                                                invoice.invoice_number ||
+
+                                                "Missing"
+
+                                            }
+
+                                        </p>
+
+                                        <p>
+
+                                            <b>
+
+                                                Vendor:
+
+                                            </b>{" "}
+
+                                            {
+
+                                                invoice.vendor ||
+
+                                                "Missing"
+
+                                            }
+
+                                        </p>
+
+                                        <pre>
+
+                                            {
+
+                                                JSON.stringify(
+
+                                                    invoice.validation_errors,
+
+                                                    null,
+
+                                                    2
+
+                                                )
+
+                                            }
+
+                                        </pre>
+
+                                        <button
+
+                                            onClick={() =>
+
+                                                handleSaveAnyway(invoice)
+
+                                            }
+
+                                        >
+
+                                            Save Anyway
+
+                                        </button>
+
+                                    </div>
+
+                                )
+
+                            )
+
+                    }
+
+                </div>
+
+            }
 
         </div>
 

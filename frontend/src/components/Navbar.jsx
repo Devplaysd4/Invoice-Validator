@@ -1,20 +1,40 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Navbar() {
+
+    const location = useLocation();
 
     return (
 
         <nav className="navbar">
 
-            <h2>Invoice Processor</h2>
+            <div className="logo">
+
+                Invoice Validator
+
+            </div>
 
             <div className="nav-links">
 
-                <Link to="/">
+                <Link
+                    className={
+                        location.pathname === "/"
+                        ? "active"
+                        : ""
+                    }
+                    to="/"
+                >
                     Dashboard
                 </Link>
 
-                <Link to="/upload">
+                <Link
+                    className={
+                        location.pathname === "/upload"
+                        ? "active"
+                        : ""
+                    }
+                    to="/upload"
+                >
                     Upload
                 </Link>
 

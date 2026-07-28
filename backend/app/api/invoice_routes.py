@@ -1,28 +1,24 @@
 from datetime import date
+
 from typing import Optional
 
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
+
 from app.models.invoice import Invoice
 
-
-from fastapi import APIRouter, Depends, HTTPException
+from app.schemas.invoice_schema import InvoiceSchema
 
 from app.services.database_service import update_invoice
-
-
-
-
-
-
 
 
 router = APIRouter(prefix="/invoices", tags=["Invoices"])
 
 
-@router.get("/")
+@router.get("")
 def get_all_invoices(
     db: Session = Depends(get_db)):
 
@@ -115,23 +111,84 @@ def delete_invoice(
 
 
 @router.post("")
-def create_invoice(invoice_number: str,
-    vendor: str,
-    invoice_date:date,
-    amount:float,
-    status:str,
-    validation_errors:Optional[str] = None,
-    db:Session =Depends(get_db)):
+def create_invoice(
+    invoice: InvoiceSchema,
+    db: Session = Depends(get_db)
+):
+
     new_invoice = Invoice(
-        invoice_number=invoice_number,
-        vendor=vendor,
-        invoice_date=invoice_date,
-        amount=amount,
-        status=status,
-        validation_errors=validation_errors
+        **invoice.model_dump()
     )
+
     db.add(new_invoice)
+
     db.commit()
+
     db.refresh(new_invoice)
+
     return new_invoice
+@router.put("/{invoice_id}")
+
+def edit_invoice(
     
+
+    invoice_id: int,
+
+    invoice: InvoiceSchema,
+
+    db: Session = Depends(get_db)):
+
+    updated = update_invoice(
+
+        db,
+
+        invoice_id,
+
+        invoice.model_dump()
+
+    )
+
+    if updated is None:
+
+        raise HTTPException(
+
+            status_code=404,
+
+            detail="Invoice not found"
+
+        )
+
+    return updated
+
+
+
+
+@router.post("/override")
+def save_anyway(
+    invoice: InvoiceSchema,
+    db: Session = Depends(get_db)
+):
+
+    new_invoice = Invoice(
+
+        invoice_number=invoice.invoice_number,
+
+        vendor=invoice.vendor,
+
+        invoice_date=invoice.invoice_date,
+
+        amount=invoice.amount,
+
+        status="OVERRIDDEN",
+
+        validation_errors=invoice.validation_errors
+
+    )
+
+    db.add(new_invoice)
+
+    db.commit()
+
+    db.refresh(new_invoice)
+
+    return new_invoice

@@ -1,102 +1,150 @@
-function InvoiceTable({ invoices, onDelete }) {
+function InvoiceTable({
 
-    if (invoices.length === 0) {
+    invoices,
 
-        return <h3>No invoices found.</h3>;
+    onDelete,
 
-    }
+    onView,
+
+    onEdit
+
+}) {
 
     return (
 
-        <table className="invoice-table">
+        <div className="table-container">
 
-            <thead>
+            <table>
 
-                <tr>
+                <thead>
 
-                    <th>ID</th>
+                    <tr>
 
-                    <th>Invoice Number</th>
+                        <th>ID</th>
 
-                    <th>Vendor</th>
+                        <th>Invoice</th>
 
-                    <th>Date</th>
+                        <th>Vendor</th>
 
-                    <th>Amount</th>
+                        <th>Date</th>
 
-                    <th>Status</th>
+                        <th>Amount</th>
 
-                    <th>Validation Errors</th>
+                        <th>Status</th>
 
-                    <th>Action</th>
+                        <th>Actions</th>
 
-                </tr>
+                    </tr>
 
-            </thead>
+                </thead>
 
-            <tbody>
+                <tbody>
 
-                {
+                    {
 
-                    invoices.map((invoice) => (
+                        invoices.map(invoice => (
 
-                        <tr key={invoice.id}>
+                            <tr key={invoice.id}>
 
-                            <td>{invoice.id}</td>
+                                <td>{invoice.id}</td>
 
-                            <td>{invoice.invoice_number}</td>
+                                <td>{invoice.invoice_number}</td>
 
-                            <td>{invoice.vendor}</td>
+                                <td>{invoice.vendor}</td>
 
-                            <td>{invoice.invoice_date}</td>
+                                <td>{invoice.invoice_date}</td>
 
-                            <td>₹ {invoice.amount}</td>
+                                <td>
 
-                            <td>
+                                    ₹ {Number(invoice.amount).toLocaleString()}
 
-                                <span
-                                    style={{
-                                        color:
+                                </td>
+
+                                <td>
+
+                                    <span
+
+                                        className={
+
                                             invoice.status === "VALID"
-                                                ? "limegreen"
-                                                : "red",
-                                        fontWeight: "bold"
-                                    }}
-                                >
-                                    {invoice.status}
-                                </span>
 
-                            </td>
+                                            ? "status valid"
 
-                            <td>
+                                            : "status invalid"
 
-                                {
-                                    invoice.validation_errors
-                                        ? invoice.validation_errors
-                                        : "-"
-                                }
+                                        }
 
-                            </td>
+                                    >
 
-                            <td>
+                                        {invoice.status}
 
-                                <button
-                                    onClick={() => onDelete(invoice.id)}
-                                >
-                                    Delete
-                                </button>
+                                    </span>
 
-                            </td>
+                                </td>
 
-                        </tr>
+                                <td>
 
-                    ))
+                                    <button
 
-                }
+                                        className="view-btn"
 
-            </tbody>
+                                        onClick={()=>
 
-        </table>
+                                            onView(invoice)
+
+                                        }
+
+                                    >
+
+                                        View
+
+                                    </button>
+
+                                    <button
+
+                                        className="edit-btn"
+
+                                        onClick={()=>
+
+                                            onEdit(invoice)
+
+                                        }
+
+                                    >
+
+                                        Edit
+
+                                    </button>
+
+                                    <button
+
+                                        className="delete-btn"
+
+                                        onClick={()=>
+
+                                            onDelete(invoice.id)
+
+                                        }
+
+                                    >
+
+                                        Delete
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        ))
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     );
 

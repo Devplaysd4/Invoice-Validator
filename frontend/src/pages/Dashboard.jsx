@@ -1,25 +1,90 @@
 import { useEffect, useState } from "react";
 
 import {
+
     getInvoices,
+
     deleteInvoice
+
 } from "../api/api";
 
 import InvoiceTable from "../components/InvoiceTable";
 
-function Dashboard() {
+import StatsCards from "../components/StatsCards";
 
-    const [invoices, setInvoices] = useState([]);
+import SearchBar from "../components/SearchBar";
 
-    async function loadInvoices() {
+import ViewInvoiceModal from "../components/ViewInvoiceModal";
 
-        const data = await getInvoices();
+import EditInvoiceModal from "../components/EditInvoiceModal";
+
+function Dashboard(){
+
+    const [invoices,setInvoices]=useState([]);
+
+    const [filtered,setFiltered]=useState([]);
+
+    const [search,setSearch]=useState("");
+
+    const [status,setStatus]=useState("ALL");
+
+    const [selectedInvoice,setSelectedInvoice]=useState(null);
+
+    const [editingInvoice,setEditingInvoice]=useState(null);
+
+    
+
+    async function loadInvoices(){
+
+        const data=await getInvoices();
 
         setInvoices(data);
 
     }
 
-    async function handleDelete(id) {
+    useEffect(()=>{
+
+        loadInvoices();
+
+    },[]);
+
+    useEffect(()=>{
+
+        let temp=[...invoices];
+
+        if(status!=="ALL"){
+
+            temp=temp.filter(
+
+                invoice=>invoice.status===status
+
+            );
+
+        }
+
+        if(search){
+
+            const s=search.toLowerCase();
+
+            temp=temp.filter(invoice=>
+
+                invoice.invoice_number?.toLowerCase().includes(s)
+
+                ||
+
+                invoice.vendor?.toLowerCase().includes(s)
+
+            );
+
+        }
+
+        setFiltered(temp);
+
+    },[search,status,invoices]);
+
+    async function handleDelete(id){
+
+        if(!window.confirm("Delete Invoice?")) return;
 
         await deleteInvoice(id);
 
@@ -27,68 +92,62 @@ function Dashboard() {
 
     }
 
-    useEffect(() => {
+    return(
 
-        loadInvoices();
+        <div className="container">
 
-    }, []);
+            <h1>
 
-    const total = invoices.length;
+                Invoice Processing Dashboard
 
-    const valid = invoices.filter(
-        invoice => invoice.status === "VALID"
-    ).length;
+            </h1>
 
-    const invalid = total - valid;
+            <StatsCards
 
-    const totalAmount = invoices.reduce(
-        (sum, invoice) => sum + Number(invoice.amount || 0),
-        0
-    );
+                invoices={invoices}
 
-    const successRate =
-        total === 0
-            ? 0
-            : ((valid / total) * 100).toFixed(2);
+            />
 
-    return (
+            <SearchBar
 
-        <div>
+                search={search}
 
-            <h1>Invoice Dashboard</h1>
+                setSearch={setSearch}
 
-            <div className="dashboard-cards">
+                status={status}
 
-                <div className="card">
-                    <h3>Total Invoices</h3>
-                    <h2>{total}</h2>
-                </div>
+                setStatus={setStatus}
 
-                <div className="card">
-                    <h3>Valid</h3>
-                    <h2>{valid}</h2>
-                </div>
-
-                <div className="card">
-                    <h3>Invalid</h3>
-                    <h2>{invalid}</h2>
-                </div>
-
-                <div className="card">
-                    <h3>Success Rate</h3>
-                    <h2>{successRate}%</h2>
-                </div>
-
-                <div className="card">
-                    <h3>Total Amount</h3>
-                    <h2>₹ {totalAmount.toFixed(2)}</h2>
-                </div>
-
-            </div>
+            />
 
             <InvoiceTable
-                invoices={invoices}
+
+                invoices={filtered}
+
                 onDelete={handleDelete}
+
+                onView={setSelectedInvoice}
+
+                onEdit={setEditingInvoice}
+
+            />
+
+            <ViewInvoiceModal
+
+                invoice={selectedInvoice}
+
+                onClose={()=>setSelectedInvoice(null)}
+
+            />
+
+            <EditInvoiceModal
+
+                invoice={editingInvoice}
+
+                refresh={loadInvoices}
+
+                onClose={()=>setEditingInvoice(null)}
+
             />
 
         </div>
