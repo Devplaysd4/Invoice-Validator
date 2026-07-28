@@ -8,6 +8,7 @@ from app.database.database import Base, engine
 
 # Import models so SQLAlchemy registers them
 from app.models.invoice import Invoice
+from app.auth.auth import router as auth_router
 
 # Create FastAPI app FIRST
 app = FastAPI(
@@ -40,6 +41,7 @@ Base.metadata.create_all(bind=engine)
 # Register routes
 app.include_router(upload_router)
 app.include_router(invoice_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

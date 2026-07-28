@@ -1159,3 +1159,111 @@ input[type=file]::file-selector-button:hover{
     color:white;
 
 }
+
+.app{
+    min-height:100vh;
+    background:#0f172a;
+}
+
+.container{
+    max-width:1300px;
+    margin:auto;
+    padding:30px;
+}
+.login-container{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#0f172a;
+
+}
+
+.login-card{
+
+    width:360px;
+
+    padding:35px;
+
+    background:#1e293b;
+
+    border-radius:12px;
+
+    box-shadow:0 0 20px rgba(0,0,0,.3);
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.login-card h1{
+
+    color:white;
+
+    text-align:center;
+
+    margin:0;
+
+}
+
+.login-card p{
+
+    color:#cbd5e1;
+
+    text-align:center;
+
+    margin-bottom:10px;
+
+}
+
+.login-card input{
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    font-size:15px;
+
+}
+
+.login-card button{
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#2563eb;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+.login-card button:hover{
+
+    background:#1d4ed8;
+
+}
+
+.login-card button:disabled{
+
+    opacity:.7;
+
+    cursor:not-allowed;
+
+}

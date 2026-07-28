@@ -86,3 +86,47 @@ export async function saveAnyway(invoice) {
     return response.data;
 
 }
+export async function login(username,password){
+
+    const response=await api.post(
+
+        "/login",
+
+        {
+
+            username,
+
+            password
+
+        }
+
+    );
+
+    localStorage.setItem(
+
+        "token",
+
+        response.data.access_token
+
+    );
+
+    return response.data;
+
+}
+api.interceptors.request.use(config=>{
+
+    const token=
+
+        localStorage.getItem("token");
+
+    if(token){
+
+        config.headers.Authorization=
+
+            `Bearer ${token}`;
+
+    }
+
+    return config;
+
+});

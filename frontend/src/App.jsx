@@ -1,30 +1,111 @@
-import { Routes, Route } from "react-router-dom";
-
+import {
+    Routes,
+    Route,
+    Navigate,
+    useLocation
+} from "react-router-dom";
+import { useEffect } from "react";
 import Navbar from "./components/Navbar";
 
 import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
+import Login from "./pages/Login";
 
 function App() {
+
+    const token = localStorage.getItem("token");
+
+    const location = useLocation();
+
+    useEffect(() => {
+
+    localStorage.removeItem("token");
+
+}, []);
 
     return (
 
         <div className="app">
 
-            <Navbar />
+            {
+
+                location.pathname !== "/login" &&
+
+                <Navbar />
+
+            }
 
             <main className="container">
 
                 <Routes>
 
                     <Route
-                        path="/"
-                        element={<Dashboard />}
+
+                        path="/login"
+
+                        element={
+
+                            token
+
+                                ?
+
+                                <Navigate
+                                    to="/"
+                                    replace
+                                />
+
+                                :
+
+                                <Login />
+
+                        }
+
                     />
 
                     <Route
+
+                        path="/"
+
+                        element={
+
+                            token
+
+                                ?
+
+                                <Dashboard />
+
+                                :
+
+                                <Navigate
+                                    to="/login"
+                                    replace
+                                />
+
+                        }
+
+                    />
+
+                    <Route
+
                         path="/upload"
-                        element={<Upload />}
+
+                        element={
+
+                            token
+
+                                ?
+
+                                <Upload />
+
+                                :
+
+                                <Navigate
+                                    to="/login"
+                                    replace
+                                />
+
+                        }
+
                     />
 
                 </Routes>
@@ -38,14 +119,3 @@ function App() {
 }
 
 export default App;
-
-// .app{
-//     min-height:100vh;
-//     background:#0f172a;
-// }
-
-// .container{
-//     max-width:1300px;
-//     margin:auto;
-//     padding:30px;
-// }
