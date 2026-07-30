@@ -191,33 +191,33 @@ JWT Authentication
 
 ## Login
 
-*(Screenshot)*
+![Login](Assets/login.png)
 
 ---
 
 ## Upload
 
-*(Screenshot)*
+![Upload](Assets/upload.png)
 
 ---
 
 ## Dashboard
 
-*(Screenshot)*
+![Dashboard](Assets/dashboard.png)
 
 ---
 
 ## Validation Report
 
-*(Screenshot)*
+![Validation Report](Assets/vr.png)
 
 ---
 
 ## Swagger API
 
-*(Screenshot)*
+![Swagger API](Assets/swagger.png)
 
----
+
 
 # 🚀 Running the Project
 
